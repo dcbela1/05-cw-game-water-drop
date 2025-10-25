@@ -1,45 +1,141 @@
-// Variables to control game state
-let gameRunning = false; // Keeps track of whether game is active or not
-let dropMaker; // Will store our timer that creates drops regularly
+let score = 0;
+let timeLeft = 30;
+let countdown;
+let dropInterval;
+let bucketX = 200;
 
-// Wait for button click to start the game
-document.getElementById("start-btn").addEventListener("click", startGame);
+const scoreDisplay = document.getElementById('score');
+const timerDisplay = document.getElementById('timer');
+const messageDisplay = document.getElementById('message');
+const gameContainer = document.getElementById('game-container');
+const startBtn = document.getElementById('start-btn');
+const resetBtn = document.getElementById('reset-btn');
+const bucket = document.getElementById('bucket');
+
+startBtn.addEventListener('click', startGame);
+resetBtn.addEventListener('click', resetGame);
+
+// Keyboard movement
+document.addEventListener('keydown', moveBucket);
+gameContainer.addEventListener('mousemove', moveBucketMouse);
+
+function moveBucket(e) {
+  const gameWidth = gameContainer.clientWidth;
+  const bucketWidth = bucket.offsetWidth;
+  if (e.key === 'ArrowLeft') {
+    bucketX = Math.max(0, bucketX - 20);
+  } else if (e.key === 'ArrowRight') {
+    bucketX = Math.min(gameWidth - bucketWidth, bucketX + 20);
+  }
+  bucket.style.left = `${bucketX}px`;
+}
+
+function moveBucketMouse(e) {
+  const rect = gameContainer.getBoundingClientRect();
+  bucketX = e.clientX - rect.left - bucket.offsetWidth / 2;
+  bucketX = Math.max(0, Math.min(bucketX, gameContainer.clientWidth - bucket.offsetWidth));
+  bucket.style.left = `${bucketX}px`;
+}
 
 function startGame() {
-  // Prevent multiple games from running at once
-  if (gameRunning) return;
+  startBtn.classList.add('hidden');
+  resetBtn.classList.add('hidden');
+  score = 0;
+  timeLeft = 30;
+  scoreDisplay.textContent = score;
+  timerDisplay.textContent = timeLeft;
+  messageDisplay.textContent = "";
 
-  gameRunning = true;
+  countdown = setInterval(() => {
+    timeLeft--;
+    timerDisplay.textContent = timeLeft;
+    if (timeLeft <= 0) endGame();
+  }, 1000);
 
-  // Create new drops every second (1000 milliseconds)
-  dropMaker = setInterval(createDrop, 1000);
+  dropInterval = setInterval(createDrop, 700);
 }
 
 function createDrop() {
-  // Create a new div element that will be our water drop
-  const drop = document.createElement("div");
-  drop.className = "water-drop";
+  const drop = document.createElement('div');
+  drop.classList.add('water-drop');
 
-  // Make drops different sizes for visual variety
-  const initialSize = 60;
-  const sizeMultiplier = Math.random() * 0.8 + 0.5;
-  const size = initialSize * sizeMultiplier;
-  drop.style.width = drop.style.height = `${size}px`;
+  if (Math.random() < 0.2) {
+    drop.classList.add('bad');
+  } else {
+    drop.classList.add('clean');
+  }
 
-  // Position the drop randomly across the game width
-  // Subtract 60 pixels to keep drops fully inside the container
-  const gameWidth = document.getElementById("game-container").offsetWidth;
-  const xPosition = Math.random() * (gameWidth - 60);
-  drop.style.left = xPosition + "px";
+  drop.style.left = Math.random() * 90 + "%";
+  drop.style.width = drop.style.height = Math.floor(Math.random() * 25 + 20) + "px";
+  gameContainer.appendChild(drop);
 
-  // Make drops fall for 4 seconds
-  drop.style.animationDuration = "4s";
+  let dropY = 0;
+  const fallSpeed = 4;
 
-  // Add the new drop to the game screen
-  document.getElementById("game-container").appendChild(drop);
+  const fall = setInterval(() => {
+    dropY += fallSpeed;
+    drop.style.top = dropY + "px";
 
-  // Remove drops that reach the bottom (weren't clicked)
-  drop.addEventListener("animationend", () => {
-    drop.remove(); // Clean up drops that weren't caught
-  });
+    // Collision detection with bucket
+    const dropRect = drop.getBoundingClientRect();
+    const bucketRect = bucket.getBoundingClientRect();
+
+    if (
+      dropRect.bottom >= bucketRect.top &&
+      dropRect.left < bucketRect.right &&
+      dropRect.right > bucketRect.left
+    ) {
+      if (drop.classList.contains('bad')) {
+        score--;
+      } else {
+        score++;
+      }
+      scoreDisplay.textContent = score;
+      drop.remove();
+      clearInterval(fall);
+    }
+
+    // Remove drop if it falls past game area
+    if (dropY > 500) {
+      drop.remove();
+      clearInterval(fall);
+    }
+  }, 30);
+}
+
+function endGame() {
+  clearInterval(countdown);
+  clearInterval(dropInterval);
+  document.querySelectorAll('.water-drop').forEach(drop => drop.remove());
+
+  const winMessages = [
+    "You’re a true Water Hero!",
+    "Clean water victory!",
+    "Amazing job! You made a splash!",
+    "Every drop counts!"
+  ];
+
+  const loseMessages = [
+    "Almost there! Try again!",
+    "Keep practicing — clean water needs you!",
+    "Close one! Play again!",
+    "Don’t give up!"
+  ];
+
+  const message = score >= 20
+    ? winMessages[Math.floor(Math.random() * winMessages.length)]
+    : loseMessages[Math.floor(Math.random() * loseMessages.length)];
+
+  messageDisplay.textContent = message;
+  resetBtn.classList.remove('hidden');
+}
+
+function resetGame() {
+  score = 0;
+  timeLeft = 30;
+  scoreDisplay.textContent = score;
+  timerDisplay.textContent = timeLeft;
+  messageDisplay.textContent = "";
+  startBtn.classList.remove('hidden');
+  resetBtn.classList.add('hidden');
 }
