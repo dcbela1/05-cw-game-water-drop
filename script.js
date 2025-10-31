@@ -6,9 +6,8 @@ function setDifficulty(level) {
   document.getElementById('message').textContent = "Mode: " + level.toUpperCase();
 }
 
-
-
 let score = 0;
+const collectSound = new Audio('collect.mp3');
 let timeLeft = 30;
 let countdown;
 let dropInterval;
@@ -95,11 +94,13 @@ function createDrop() {
       dropRect.left < bucketRect.right &&
       dropRect.right > bucketRect.left
     ) {
-      if (drop.classList.contains('bad')) {
-        score--;
-      } else {
-        score++;
-      }
+    if (drop.classList.contains('bad')) {
+  score--;
+} else {
+  score++;
+  collectSound.play();
+}
+
       scoreDisplay.textContent = score;
       drop.remove();
       clearInterval(fall);
