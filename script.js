@@ -102,6 +102,9 @@ function createDrop() {
 }
 
       scoreDisplay.textContent = score;
+if (score === 10) messageDisplay.textContent = "Halfway there!";
+if (score === 20) messageDisplay.textContent = "You’re a true Water Hero!";
+
       drop.remove();
       clearInterval(fall);
     }
