@@ -156,10 +156,10 @@ function endGame() {
   document.querySelectorAll('.water-drop').forEach(drop => drop.remove());
 
   const winMessages = [
-    "You’re a true Water Hero!",
-    "Clean water victory!",
+    "You’re killing it!",
+    "Water, water everywhere!",
     "Amazing job! You made a splash!",
-    "Every drop counts!"
+    "Keep it up, you're doing fantastic!"
   ];
 
   const loseMessages = [
