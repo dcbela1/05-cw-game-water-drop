@@ -2,10 +2,11 @@
 // 🎮 charity: water Game Script
 // -------------------------------
 
-// Difficulty + game variables
+// Game variables
 let difficulty = "normal";
-let dropSpeed = 4;
+let dropSpeed = 5;
 let spawnRate = 700;
+let badChance = 0.2;
 let score = 0;
 let timeLeft = 30;
 let countdown;
@@ -66,22 +67,31 @@ function startGame() {
   scoreDisplay.textContent = score;
   messageDisplay.textContent = "";
 
-  // Set difficulty values
+  // 💧 Dramatic difficulty changes for real difference
   if (difficulty === "easy") {
-    timeLeft = 45;
-    dropSpeed = 3;
-    spawnRate = 900;
+    timeLeft = 45;        // more time
+    dropSpeed = 3;        // slower fall
+    spawnRate = 1000;     // fewer drops appear
+    badChance = 0.1;      // fewer bad drops
+    gameContainer.style.backgroundColor = "#a9def9"; // light blue
   } else if (difficulty === "hard") {
-    timeLeft = 20;
-    dropSpeed = 6;
-    spawnRate = 500;
+    timeLeft = 20;        // less time
+    dropSpeed = 8;        // faster fall
+    spawnRate = 400;      // more drops appear
+    badChance = 0.4;      // more bad drops
+    gameContainer.style.backgroundColor = "#f08080"; // light red
   } else {
-    timeLeft = 30;
-    dropSpeed = 4;
-    spawnRate = 700;
+    timeLeft = 30;        // balanced
+    dropSpeed = 5;        // medium fall
+    spawnRate = 700;      // normal amount
+    badChance = 0.2;      // balanced mix
+    gameContainer.style.backgroundColor = "#ffd972"; // soft yellow
   }
 
-  // Timer
+  // Display selected difficulty
+  messageDisplay.textContent = `Mode: ${difficulty.toUpperCase()} — Get ready!`;
+
+  // Start countdown timer
   timerDisplay.textContent = timeLeft;
   countdown = setInterval(() => {
     timeLeft--;
@@ -89,7 +99,7 @@ function startGame() {
     if (timeLeft <= 0) endGame();
   }, 1000);
 
-  // Start drops
+  // Start spawning drops
   dropInterval = setInterval(createDrop, spawnRate);
 }
 
@@ -98,7 +108,7 @@ function createDrop() {
   const drop = document.createElement('div');
   drop.classList.add('water-drop');
 
-  if (Math.random() < 0.2) {
+  if (Math.random() < badChance) {
     drop.classList.add('bad'); // dirty water
   } else {
     drop.classList.add('clean'); // clean water
@@ -156,10 +166,10 @@ function endGame() {
   document.querySelectorAll('.water-drop').forEach(drop => drop.remove());
 
   const winMessages = [
-    "You’re killing it!",
-    "Water, water everywhere!",
+    "You’re a true Water Hero!",
+    "Clean water victory!",
     "Amazing job! You made a splash!",
-    "Keep it up, you're doing fantastic!"
+    "Every drop counts!"
   ];
 
   const loseMessages = [
@@ -190,4 +200,5 @@ function resetGame() {
   messageDisplay.textContent = "";
   startBtn.classList.remove('hidden');
   resetBtn.classList.add('hidden');
+  gameContainer.style.backgroundColor = "#ffd972"; // reset to neutral yellow
 }
