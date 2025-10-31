@@ -7,7 +7,7 @@ function setDifficulty(level) {
 }
 
 let score = 0;
-const collectSound = new Audio('collect.mp3');
+const collectSound = new Audio('happycollect.mp3');
 let timeLeft = 30;
 let countdown;
 let dropInterval;
