@@ -1,3 +1,13 @@
+let difficulty = "normal";
+let dropSpeed = 4;
+let spawnRate = 700;
+function setDifficulty(level) {
+  difficulty = level;
+  document.getElementById('message').textContent = "Mode: " + level.toUpperCase();
+}
+
+
+
 let score = 0;
 let timeLeft = 30;
 let countdown;
@@ -38,21 +48,21 @@ function moveBucketMouse(e) {
 }
 
 function startGame() {
-  startBtn.classList.add('hidden');
-  resetBtn.classList.add('hidden');
-  score = 0;
+ if (difficulty === "easy") {
+  timeLeft = 45;
+  dropSpeed = 3;
+  spawnRate = 900;
+} else if (difficulty === "hard") {
+  timeLeft = 20;
+  dropSpeed = 6;
+  spawnRate = 500;
+} else {
   timeLeft = 30;
-  scoreDisplay.textContent = score;
-  timerDisplay.textContent = timeLeft;
-  messageDisplay.textContent = "";
+  dropSpeed = 4;
+  spawnRate = 700;
+}
 
-  countdown = setInterval(() => {
-    timeLeft--;
-    timerDisplay.textContent = timeLeft;
-    if (timeLeft <= 0) endGame();
-  }, 1000);
-
-  dropInterval = setInterval(createDrop, 700);
+dropInterval = setInterval(createDrop, spawnRate);
 }
 
 function createDrop() {
@@ -70,7 +80,7 @@ function createDrop() {
   gameContainer.appendChild(drop);
 
   let dropY = 0;
-  const fallSpeed = 4;
+  const fallSpeed = dropSpeed;
 
   const fall = setInterval(() => {
     dropY += fallSpeed;
